@@ -1,0 +1,8 @@
+doxygen_output/
+project_graph.json
+enriched_project_graph.json
+.embedded_explorer.Doxyfile
+ai_context/
+__pycache__/
+*.py[cod]
+.pytest_cache/

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Embedded Project Explorer</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://unpkg.com/cytoscape@3.30.4/dist/cytoscape.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>Embedded Project Explorer</h1>
+    <div id="projectStats">Loading...</div>
+  </div>
+  <div class="top-actions">
+    <input id="search" type="search" placeholder="Search function, task, ISR, callback...">
+    <button id="resetView" class="iconBtn" title="Reset graph view">R</button>
+  </div>
+</header>
+<main>
+  <aside class="leftbar">
+    <div class="sectionTitle">PROJECT</div>
+    <button class="filter active" data-filter="ALL"><span>All</span> All <b id="countAll">0</b></button>
+    <button class="filter" data-filter="FUNCTION"><span>Fn</span> Functions <b id="countFunction">0</b></button>
+    <button class="filter" data-filter="RTOS_TASK"><span>T</span> RTOS Tasks <b id="countTask">0</b></button>
+    <button class="filter" data-filter="ISR"><span>IRQ</span> Interrupts <b id="countISR">0</b></button>
+    <button class="filter" data-filter="CALLBACK"><span>Cb</span> Callbacks <b id="countCallback">0</b></button>
+
+    <div class="sectionTitle symbolTitle">SYMBOLS</div>
+    <div id="results"></div>
+  </aside>
+  <div class="resizeHandle leftResize" data-resize="left" title="Resize sidebar"></div>
+
+  <section class="graphArea">
+    <div id="cy"></div>
+    <div class="graphHint">Drag | scroll to zoom | click a node</div>
+  </section>
+
+  <div class="resizeHandle rightResize" data-resize="right" title="Resize details panel"></div>
+  <aside class="rightbar">
+    <div class="sectionTitle">SELECTED SYMBOL</div>
+    <div id="details"><p class="muted">Select a node from the graph.</p></div>
+  </aside>
+</main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
