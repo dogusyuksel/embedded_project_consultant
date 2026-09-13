@@ -18,16 +18,7 @@ Run from WSL:
 ```bash
 cd /mnt/c/cygwin64/home/dodo-/embedded_peoject_consultant
 
-TARGET=/mnt/c/cygwin64/home/dodo-/stm32f1-master-example/bootloader_firmware
-
-python3 doxygen_parser.py doxygen_output/xml project_graph.json \
-  --target-project "$TARGET" \
-  --include-folder src \
-  --include-folder inc \
-  --exclude-folder mx_files \
-  --exclude-folder cmake \
-  --exclude-folder test \
-  --exclude-folder docs
+python3 doxygen_parser.py --config explorer_config.json
 ```
 
 This single command:
@@ -38,6 +29,16 @@ This single command:
 - copies `doxygen_output/` back into this repo
 - writes `project_graph.json`
 - writes `enriched_project_graph.json`
+
+The included `explorer_config.json` is configured for the current example firmware project:
+
+```json
+{
+  "target_project": "/mnt/c/cygwin64/home/dodo-/stm32f1-master-example/bootloader_firmware",
+  "include_folders": ["src", "inc"],
+  "exclude_folders": ["mx_files", "cmake", "test", "docs"]
+}
+```
 
 ## Run The UI
 

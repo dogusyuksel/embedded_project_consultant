@@ -494,6 +494,37 @@ def default_run_command(command, cwd):
     )
 
 
+def load_pipeline_config(path):
+    if not path:
+        return {}
+
+    config_path = Path(path)
+
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    with config_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def config_value(config, *names):
+    for name in names:
+        if name in config and config[name] is not None:
+            return config[name]
+
+    return None
+
+
+def list_config_value(value):
+    if value is None:
+        return []
+
+    if isinstance(value, list):
+        return value
+
+    return [value]
+
+
 def copy_doxygen_output(
     source_output_dir,
     workspace_root,
@@ -947,6 +978,10 @@ def parse_args(argv):
     )
 
     parser.add_argument(
+        "--config",
+        help="JSON pipeline config file with target_project, include_folders, and exclude_folders.",
+    )
+    parser.add_argument(
         "xml_dir",
         nargs="?",
         default=DEFAULT_XML_DIR,
@@ -1010,29 +1045,49 @@ def parse_args(argv):
 
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
+    config = load_pipeline_config(args.config)
+
+    target_project = (
+        args.target_project
+        or config_value(config, "target_project")
+    )
+    include_folders = (
+        args.include_folder
+        if args.include_folder
+        else list_config_value(config_value(config, "include_folders", "include_folder"))
+    )
+    exclude_folders = (
+        args.exclude_folder
+        if args.exclude_folder
+        else list_config_value(config_value(config, "exclude_folders", "exclude_folder"))
+    )
+    project_root = (
+        args.project_root
+        if args.project_root != "."
+        else config_value(config, "project_root") or "."
+    )
 
     xml_dir = args.xml_dir
-    project_root = args.project_root
 
-    if args.target_project:
+    if target_project:
         xml_dir = run_doxygen_pipeline(
-            target_project=args.target_project,
+            target_project=target_project,
             workspace_root=Path.cwd(),
-            include_folders=args.include_folder,
-            exclude_folders=args.exclude_folder,
+            include_folders=include_folders,
+            exclude_folders=exclude_folders,
             doxygen_bin=args.doxygen_bin,
             doxygen_output=args.doxygen_output,
             local_doxygen_output=args.local_doxygen_output,
             generated_doxyfile=args.generated_doxyfile,
         )
-        project_root = args.target_project
+        project_root = target_project
 
     graph = build_graph(
         xml_dir,
         output_path=args.output,
         project_root=project_root,
-        include_folders=args.include_folder,
-        exclude_folders=args.exclude_folder,
+        include_folders=include_folders,
+        exclude_folders=exclude_folders,
     )
 
     with open(args.output, "w", encoding="utf-8") as f:

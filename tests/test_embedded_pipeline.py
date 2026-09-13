@@ -303,6 +303,61 @@ CUSTOM_TAG = keep_me
         self.assertEqual(graph["statistics"]["functions"], 1)
         self.assertEqual(enriched["statistics"]["functions"], 1)
 
+    def test_parser_main_reads_pipeline_config_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "target"
+            target.mkdir()
+            (target / "src").mkdir()
+            (target / "src" / "main.c").write_text("int main(void) { return 0; }", encoding="utf-8")
+            xml_dir = root / "xml"
+            xml_dir.mkdir()
+            (xml_dir / "main_8c.xml").write_text(
+                """<?xml version="1.0"?>
+<doxygen>
+  <compounddef id="main_8c" kind="file" language="C++">
+    <compoundname>main.c</compoundname>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="main">
+        <type>int</type>
+        <definition>int main</definition>
+        <argsstring>(void)</argsstring>
+        <name>main</name>
+        <location file="src/main.c" line="1" bodystart="1" bodyend="1"/>
+      </memberdef>
+    </sectiondef>
+  </compounddef>
+</doxygen>
+""",
+                encoding="utf-8",
+            )
+            config_path = root / "explorer_config.json"
+            graph_path = root / "project_graph.json"
+            enriched_path = root / "enriched_project_graph.json"
+            config_path.write_text(
+                json.dumps({
+                    "project_root": str(target),
+                    "include_folders": ["src"],
+                    "exclude_folders": ["test"],
+                }),
+                encoding="utf-8",
+            )
+
+            with contextlib.redirect_stdout(io.StringIO()):
+                parser_main([
+                    "--config",
+                    str(config_path),
+                    str(xml_dir),
+                    str(graph_path),
+                    "--enriched-output",
+                    str(enriched_path),
+                ])
+
+            graph = json.loads(graph_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(graph["project"]["source_root"], str(target))
+        self.assertEqual(graph["statistics"]["functions"], 1)
+
 
 class EmbeddedAnalyzerTests(unittest.TestCase):
     def test_remove_comments_preserves_line_numbers_for_offset_mapping(self):

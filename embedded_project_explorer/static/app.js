@@ -1,6 +1,7 @@
 let graph = { nodes: [], edges: [] };
 let cy = null;
 let currentFilter = "ALL";
+let currentFileFilter = "ALL";
 let selectedId = null;
 let activeTab = "overview";
 let resizeState = null;
@@ -262,16 +263,41 @@ function updateCounts() {
   $("countCallback").textContent = count("CALLBACK");
 }
 
+function populateFileFilter() {
+  const select = $("fileFilter");
+  if (!select) return;
+  const files = [...new Set(nodes().map((d) => d.file || (d.location || {}).file).filter(Boolean))].sort();
+  select.innerHTML = `<option value="ALL">All files</option>` + files.map((file) => `<option value="${esc(file)}">${esc(file)}</option>`).join("");
+}
+
+function searchTextForNode(d) {
+  const r = relations(idOf(d));
+  const incoming = r.incoming.map((x) => nameOf(x.node)).join(" ");
+  const outgoing = r.outgoing.map((x) => nameOf(x.node)).join(" ");
+  const embedded = JSON.stringify(d.embedded || {});
+  return `${nameOf(d)} ${d.file || ""} ${(d.location || {}).file || ""} ${d.brief || ""} ${d.definition || ""} ${incoming} ${outgoing} ${embedded}`.toLowerCase();
+}
+
+function searchScore(d, q) {
+  if (!q) return 0;
+  const name = nameOf(d).toLowerCase();
+  if (name === q) return 0;
+  if (name.startsWith(q)) return 1;
+  if (name.includes(q)) return 2;
+  return 3;
+}
+
 function renderResults() {
   const q = $("search").value.trim().toLowerCase();
   const a = nodes()
     .filter((d) => {
-      const ok = currentFilter === "ALL" || typeOf(d) === currentFilter;
-      const embedded = JSON.stringify(d.embedded || {});
-      const text = `${nameOf(d)} ${d.file || ""} ${d.brief || ""} ${d.definition || ""} ${embedded}`.toLowerCase();
-      return ok && (!q || text.includes(q));
+      const typeOk = currentFilter === "ALL" || typeOf(d) === currentFilter;
+      const file = d.file || (d.location || {}).file || "";
+      const fileOk = currentFileFilter === "ALL" || file === currentFileFilter;
+      const text = searchTextForNode(d);
+      return typeOk && fileOk && (!q || text.includes(q));
     })
-    .sort((x, y) => nameOf(x).localeCompare(nameOf(y)))
+    .sort((x, y) => searchScore(x, q) - searchScore(y, q) || nameOf(x).localeCompare(nameOf(y)))
     .slice(0, 150);
   $("results").innerHTML = a.length
     ? a
@@ -478,6 +504,10 @@ function clearSelection() {
 }
 
 $("search").addEventListener("input", renderResults);
+$("fileFilter").addEventListener("change", (event) => {
+  currentFileFilter = event.target.value;
+  renderResults();
+});
 document.querySelectorAll(".filter").forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll(".filter").forEach((x) => x.classList.remove("active"));
@@ -505,6 +535,7 @@ async function init() {
   const s = graph.statistics || {};
   $("projectStats").textContent = `${s.files ?? "?"} files | ${s.functions ?? graph.nodes.length} functions | ${s.rtos_tasks ?? 0} tasks | ${s.interrupts ?? 0} ISRs | ${s.callbacks ?? 0} callbacks | ${graph.edges.length} relationships`;
   updateCounts();
+  populateFileFilter();
   renderGraph();
   renderResults();
   if (selectedId) showDetails(selectedId);

@@ -5,14 +5,7 @@ This Flask UI reads `../enriched_project_graph.json` and shows the firmware grap
 Generate the graph from the repository root first:
 
 ```bash
-python3 doxygen_parser.py doxygen_output/xml project_graph.json \
-  --target-project /path/to/firmware \
-  --include-folder src \
-  --include-folder inc \
-  --exclude-folder mx_files \
-  --exclude-folder cmake \
-  --exclude-folder test \
-  --exclude-folder docs
+python3 doxygen_parser.py --config explorer_config.json
 ```
 
 Then run the UI:
@@ -32,5 +25,7 @@ http://127.0.0.1:5000
 Notes:
 
 - Left and right panels are resizable.
+- Search prioritizes exact symbol matches and can filter by source file.
+- Search also matches caller and callee names.
 - The Source Code tab loads the selected function body.
 - The Ask AI tab writes context to `../ai_context/latest_ai_query_context.md`; it does not call an AI model yet.

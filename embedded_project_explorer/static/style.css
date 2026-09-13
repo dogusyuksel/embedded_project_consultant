@@ -5,7 +5,8 @@ body{margin:0;height:100vh;overflow:hidden;background:var(--bg);color:var(--text
 h1{margin:0;font-size:18px;font-weight:700;letter-spacing:0}
 .top-actions{display:flex;gap:8px}
 #projectStats{margin-top:3px;color:var(--muted);font-size:11px}
-#search{width:380px;max-width:42vw;padding:9px 11px;border:1px solid #3d4248;border-radius:7px;background:#0d0f11;color:#fff;outline:none}
+#search{width:360px;max-width:34vw;padding:9px 11px;border:1px solid #3d4248;border-radius:7px;background:#0d0f11;color:#fff;outline:none}
+#fileFilter{width:180px;max-width:22vw;padding:9px 10px;border:1px solid #3d4248;border-radius:7px;background:#0d0f11;color:#dbe2e8;outline:none}
 .iconBtn{width:35px;border:1px solid #3d4248;border-radius:7px;background:#23272b;color:#d6dde4;cursor:pointer;font-weight:700}
 main{display:grid;grid-template-columns:var(--left-width) 6px minmax(460px,1fr) 6px var(--right-width);height:calc(100vh - 64px)}
 .leftbar,.rightbar{background:var(--panel);overflow:auto;padding:13px}
@@ -60,5 +61,6 @@ pre{margin:7px 0 0;padding:9px;background:#101214;border-radius:5px;white-space:
   .resizeHandle{display:none}
   .leftbar,.rightbar{border:0;border-bottom:1px solid var(--line);max-height:360px}
   .graphArea{height:520px}
-  #search{width:260px;max-width:50vw}
+  #search{width:220px;max-width:44vw}
+  #fileFilter{width:150px;max-width:34vw}
 }

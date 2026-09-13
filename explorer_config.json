@@ -1,0 +1,13 @@
+{
+  "target_project": "/mnt/c/cygwin64/home/dodo-/stm32f1-master-example/bootloader_firmware",
+  "include_folders": [
+    "src",
+    "inc"
+  ],
+  "exclude_folders": [
+    "mx_files",
+    "cmake",
+    "test",
+    "docs"
+  ]
+}
